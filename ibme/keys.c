@@ -1,15 +1,31 @@
+#include <pbc/pbc.h>
+
 #include "keys.h"
 #include "hash.h"
 
-MPK *MPK_init(pbc_param_t param){
-    MPK *mpk;
+int MPK_init(pbc_param_t param, MPK **mpk){
+    if((*mpk = (struct _mpk*) malloc(sizeof(struct _mpk))) == NULL) {
+        return 1;
+    }
 
-    mpk = (struct _mpk*) malloc(sizeof(struct _mpk));
-    pairing_init_pbc_param(mpk->pairing, param);
-    element_init_G1(mpk->P, mpk->pairing);
-    element_init_same_as(mpk->P0, mpk->P);
+    pairing_init_pbc_param((*mpk)->pairing, param);
+    if(((*mpk)->pairing) == NULL) {
+        MPK_clear(*mpk);
+        return 1;
+    }
 
-    return mpk;
+    element_init_G1((*mpk)->P, (*mpk)->pairing);
+    if(((*mpk)->P) == NULL) {
+        MPK_clear(*mpk);
+        return 1;
+    }
+
+    element_init_same_as((*mpk)->P0, (*mpk)->P);
+    if(((*mpk)->P0) == NULL) {
+        MPK_clear(*mpk);
+        return 1;
+    }
+    return 0;
 }
 
 void MPK_clear(MPK *mpk) {
@@ -19,14 +35,23 @@ void MPK_clear(MPK *mpk) {
     free(mpk);
 }
 
-MSK *MSK_init(pairing_t pairing){
-    MSK *msk;
+int MSK_init(pairing_t pairing, MSK **msk) {
+    if((*msk = (struct _msk*) malloc(sizeof(struct _msk))) == NULL) {
+        return 1;
+    }
 
-    msk = (struct _msk*) malloc(sizeof(struct _msk));
-    element_init_Zr(msk->r, pairing);
-    element_init_Zr(msk->s, pairing);
+    element_init_Zr((*msk)->r, pairing);
+    if(((*msk)->r) == NULL) {
+        MSK_clear(*msk);
+        return 1;
+    }
 
-    return msk;
+    element_init_Zr((*msk)->s, pairing);
+    if(((*msk)->s) == NULL) {
+        MSK_clear(*msk);
+        return 1;
+    }
+    return 0;
 }
 
 void MSK_clear(MSK *msk){
@@ -35,22 +60,31 @@ void MSK_clear(MSK *msk){
     free(msk);
 }
 
-MKP *MKP_init(const char *param_str) {
-    MKP *mkp;
+int MKP_init(const char *param_str, MKP **mkp) {
     pbc_param_t param;
 
-    if(pbc_param_init_set_str(param, param_str)) {
-        return NULL;
+    if(1 == pbc_param_init_set_str(param, param_str)) {
+        return 1;
     }
 
-    mkp = (struct _mkp*) malloc(sizeof(struct _mkp));
+    if((*mkp = (struct _mkp*) malloc(sizeof(struct _mkp))) == NULL) {
+        pbc_param_clear(param);
+        return 1;
+    }
 
-    mkp->mpk = MPK_init(param);
+    if(1 == MPK_init(param, &((*mkp)->mpk))) {
+        pbc_param_clear(param);
+        MKP_clear(*mkp);
+        return 1;
+    }
     pbc_param_clear(param);
 
-    mkp->msk = MSK_init(mkp->mpk->pairing);
+    if(1 == MSK_init((*mkp)->mpk->pairing, &((*mkp)->msk))) {
+        MKP_clear(*mkp);
+        return 1;
+    }
 
-    return mkp;
+    return 0;
 }
 
 void MKP_clear(MKP *mkp) {
@@ -59,11 +93,17 @@ void MKP_clear(MKP *mkp) {
     free(mkp);
 }
 
-EK *EK_init(pairing_t pairing) {
-    EK *ek;
-    ek = (struct _ek*) malloc(sizeof(struct _ek));
-    element_init_G1(ek->k, pairing);
-    return ek;
+int EK_init(pairing_t pairing, EK **ek) {
+    if((*ek = (struct _ek*) malloc(sizeof(struct _ek))) == NULL) {
+        return 1;
+    }
+
+    element_init_G1((*ek)->k, pairing);
+    if(((*ek)->k) == NULL) {
+        EK_clear(*ek);
+        return 1;
+    }
+    return 0;
 }
 
 void EK_clear(EK *ek) {
@@ -71,17 +111,32 @@ void EK_clear(EK *ek) {
     free(ek);
 }
 
-DK *DK_init(pairing_t pairing) {
-    DK *dk;
-    dk = (struct _dk*) malloc(sizeof(struct _dk));
-    element_init_G1(dk->k1, pairing);
-    element_init_G1(dk->k2, pairing);
-    dk->k3 = Hash_init(pairing);
-    return dk;
+int DK_init(pairing_t pairing, DK **dk) {
+    if((*dk = (struct _dk*) malloc(sizeof(struct _dk))) == NULL){
+        return 1;
+    }
+
+    element_init_G1((*dk)->k1, pairing);
+    if(((*dk)->k1) == NULL) {
+        DK_clear(*dk);
+        return 1;
+    }
+
+    element_init_G1((*dk)->k2, pairing);
+    if(((*dk)->k2) == NULL) {
+        DK_clear(*dk);
+        return 1;
+    }
+
+    if(1 == Hash_G1_init(pairing, &((*dk)->k3))) {
+        DK_clear(*dk);
+        return 1;
+    }
+    return 0;
 }
 
 void DK_clear(DK *dk) {
-    Hash_clear(dk->k3);
+    Hash_G1_clear(dk->k3);
     element_clear(dk->k2);
     element_clear(dk->k1);
     free(dk);

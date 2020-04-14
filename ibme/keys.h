@@ -28,22 +28,22 @@ typedef struct _ek {
 typedef struct _dk {
     element_t k1;
     element_t k2;
-    Hash *k3;
+    Hash_G1 *k3;
 } DK;
 
-MPK *MPK_init(pbc_param_t param);
+int MPK_init(pbc_param_t param, MPK **mpk);
 void MPK_clear(MPK *mpk);
 
-MSK *MSK_init(pairing_t pairing);
+int MSK_init(pairing_t pairing, MSK **msk);
 void MSK_clear(MSK *msk);
 
-MKP *MKP_init(const char *param_str);
+int MKP_init(const char *param_str, MKP **mkp);
 void MKP_clear(MKP *mkp);
 
-EK *EK_init(pairing_t pairing);
+int EK_init(pairing_t pairing, EK **ek);
 void EK_clear(EK *ek);
 
-DK *DK_init(pairing_t pairing);
+int DK_init(pairing_t pairing, DK **dk);
 void DK_clear(DK *dk);
 
 #endif //IBME_KEYS_H
