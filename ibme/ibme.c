@@ -58,7 +58,6 @@ int enc(MPK *mpk, EK *ek, const unsigned char *R, size_t R_len, const unsigned c
     element_t u, t, P0_u, k_R, k_S, T_ek;
     Hash_G1 *h_R;
     Hash_bytes *h_k_R, *h_k_S;
-    int i;
 
     if((mpk == NULL) || (ek == NULL) || (R == NULL) || (R_len < 1) || (m == NULL) || (m_len < 1) || (*c == NULL)) {
         return 1;
@@ -129,8 +128,8 @@ int enc(MPK *mpk, EK *ek, const unsigned char *R, size_t R_len, const unsigned c
         Hash_bytes_clear(h_k_S);
         return 1;
     }
-    for(i = 0; i < m_len; i++) {
-        ((*c)->V)[i] = m[i] ^ (h_k_R->h)[i] ^ (h_k_S->h)[i];
+    for(((*c)->V_len) = 0; ((*c)->V_len) < m_len; ((*c)->V_len)++) {
+        ((*c)->V)[((*c)->V_len)] = m[((*c)->V_len)] ^ (h_k_R->h)[((*c)->V_len)] ^ (h_k_S->h)[((*c)->V_len)];
     }
 
     Hash_bytes_clear(h_k_R);
