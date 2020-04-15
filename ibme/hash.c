@@ -1,5 +1,5 @@
 #include "hash.h"
-#include <openssl/evp.h>
+#include <mbedtls/sha256.h>
 #include <string.h>
 #include <pbc/pbc.h>
 
@@ -56,44 +56,17 @@ int H_prime(const unsigned char *X, size_t X_len, Hash_G1 **hash) {
 }
 
 int H(const unsigned char *X, size_t X_len, Hash_G1 **hash) {
-    unsigned char *digest;
-    unsigned int digest_len;
-    EVP_MD_CTX *mdctx;
+    unsigned char digest[sha256_digest_len];
 
-    if((X == NULL) || (X_len < 1) || (*hash == NULL)) {
+    if ((X == NULL) || (X_len < 1) || (*hash == NULL)) {
         return 1;
     }
 
-    if ((mdctx = EVP_MD_CTX_new()) == NULL) {
+    if (1 == mbedtls_sha256_ret(X, X_len, digest, 0)) {
         return 1;
     }
 
-    if (1 != EVP_DigestInit_ex(mdctx, EVP_sha256(), NULL)) {
-        EVP_MD_CTX_free(mdctx);
-        return 1;
-    }
-
-    if(1 != EVP_DigestUpdate(mdctx, X, X_len)) {
-        EVP_MD_CTX_free(mdctx);
-        return 1;
-    }
-
-    if((digest = (unsigned char *)OPENSSL_malloc(EVP_MD_size(EVP_sha256()))) == NULL) {
-        EVP_MD_CTX_free(mdctx);
-        return 1;
-    }
-
-    if(1 != EVP_DigestFinal_ex(mdctx, digest, &digest_len)) {
-        EVP_MD_CTX_free(mdctx);
-        OPENSSL_free(digest);
-        return 1;
-    }
-
-    EVP_MD_CTX_free(mdctx);
-
-    element_from_hash((*hash)->h, digest, (int)digest_len);
-
-    OPENSSL_free(digest);
+    element_from_hash((*hash)->h, digest, sha256_digest_len);
 
     return 0;
 }

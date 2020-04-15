@@ -8,7 +8,7 @@ This library was developed for prototyping **only**. It was not exhaustively tes
 Do **not** use it as part of a production setup.
 
 ## Dependencies
-The IB-ME library is built with [CMake](https://cmake.org/) and depends on the [PBC Library](https://crypto.stanford.edu/pbc/).
+The IB-ME library is built with [CMake](https://cmake.org/) and depends on the [PBC](https://crypto.stanford.edu/pbc/) and the [mbed TLS](https://tls.mbed.org/) libraries.
 
 ## Build
     cmake .
