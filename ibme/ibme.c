@@ -123,8 +123,6 @@ int enc(MPK *mpk, EK *ek, const unsigned char *R, size_t R_len, const unsigned c
     }
     element_clear(k_S);
 
-    printf("\n\n%d\n\n", (int)h_k_S->len);
-
     if(m_len > h_k_R->len || m_len > h_k_S->len || m_len > (*c)->V_len) {
         Hash_bytes_clear(h_k_R);
         Hash_bytes_clear(h_k_S);
