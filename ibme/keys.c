@@ -3,12 +3,16 @@
 #include "keys.h"
 #include "hash.h"
 
-int MPK_init(pbc_param_t param, MPK **mpk){
+int MPK_init(MPK **mpk) {
+    pbc_param_t param;
+
     if((*mpk = (struct _mpk*) malloc(sizeof(struct _mpk))) == NULL) {
         return 1;
     }
 
+    pbc_param_init_a_gen(param, rbits, qbits);
     pairing_init_pbc_param((*mpk)->pairing, param);
+    pbc_param_clear(param);
     if(((*mpk)->pairing) == NULL) {
         MPK_clear(*mpk);
         return 1;
@@ -64,24 +68,15 @@ void MSK_clear(MSK *msk){
     }
 }
 
-int MKP_init(const char *param_str, MKP **mkp) {
-    pbc_param_t param;
-
-    if(1 == pbc_param_init_set_str(param, param_str)) {
-        return 1;
-    }
-
+int MKP_init(MKP **mkp) {
     if((*mkp = (struct _mkp*) malloc(sizeof(struct _mkp))) == NULL) {
-        pbc_param_clear(param);
         return 1;
     }
 
-    if(1 == MPK_init(param, &((*mkp)->mpk))) {
-        pbc_param_clear(param);
+    if(1 == MPK_init(&((*mkp)->mpk))) {
         MKP_clear(*mkp);
         return 1;
     }
-    pbc_param_clear(param);
 
     if(1 == MSK_init((*mkp)->mpk->pairing, &((*mkp)->msk))) {
         MKP_clear(*mkp);

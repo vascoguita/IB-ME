@@ -7,7 +7,7 @@ int pad(const unsigned char *data, size_t data_len, Padded_data **p_d) {
     unsigned char padding_byte;
     int i;
 
-    if((data == NULL) || (data_len < 1) || (data_len > ((*p_d)->len - 1)) || (((*p_d)->len - data_len) > 255)  || (*p_d == NULL)) {
+    if((data == NULL) || (data_len < 1) || (data_len > ((*p_d)->len - 1)) || (((*p_d)->len - data_len) > max_padding)  || (*p_d == NULL)) {
         return 1;
     }
 

@@ -1,5 +1,4 @@
 #include <pbc/pbc.h>
-#include <string.h>
 
 #include "ibme.h"
 #include "hash.h"
@@ -16,6 +15,11 @@ int setup(MKP **mkp) {
     element_random((*mkp)->mpk->P);
     //TODO Find adequate arithmetic operation. It might be element_mul_zn(mpk->P0, P, r) instead
     element_pow_zn((*mkp)->mpk->P0, (*mkp)->mpk->P, (*mkp)->msk->r);
+
+    #if DEBUG
+    element_printf("mpk:\n%B\n%B\nmsk:\n%B\n%B\n", (*mkp)->mpk->P, (*mkp)->mpk->P0, (*mkp)->msk->r, (*mkp)->msk->s);
+    #endif
+
     return 0;
 }
 
@@ -38,6 +42,11 @@ int sk_gen(const MKP *mkp, const unsigned char *S, size_t S_len, EK **ek) {
     element_pow_zn((*ek)->k, hash->h, mkp->msk->s);
 
     Hash_G1_clear(hash);
+
+    #if DEBUG
+    element_printf("ek of \"%s\":\n%B\n", S, (*ek)->k);
+    #endif
+
     return 0;
 }
 
@@ -52,6 +61,11 @@ int rk_gen(const MKP *mkp, const unsigned char *R, size_t R_len, DK **dk) {
 
     element_pow_zn((*dk)->k1, (*dk)->k3->h, mkp->msk->r);
     element_pow_zn((*dk)->k2, (*dk)->k3->h, mkp->msk->s);
+
+    #if DEBUG
+    element_printf("dk of \"%s\":\n%B\n%B\n%B\n", R, (*dk)->k1, (*dk)->k2, (*dk)->k3->h);
+    #endif
+
     return 0;
 }
 
@@ -60,6 +74,10 @@ int enc(MPK *mpk, EK *ek, const unsigned char *R, size_t R_len, const unsigned c
     Hash_G1 *h_R;
     Hash_bytes *h_k_R, *h_k_S;
     Padded_data *m_padded;
+    #if DEBUG
+    int i;
+    #endif
+
 
     if((mpk == NULL) || (ek == NULL) || (R == NULL) || (R_len < 1) || (m == NULL) || (m_len < 1) || (*c == NULL)) {
         return 1;
@@ -150,6 +168,15 @@ int enc(MPK *mpk, EK *ek, const unsigned char *R, size_t R_len, const unsigned c
     Padded_data_clear(m_padded);
     Hash_bytes_clear(h_k_R);
     Hash_bytes_clear(h_k_S);
+
+    #if DEBUG
+    element_printf("cipher of \"%s\" to \"%s\":\n%B\n%B\n", m, R, (*c)->T, (*c)->U);
+    for(i = 0; i < (*c)->V_len; i++) {
+        printf("0x%x", (*c)->V[i]);
+    }
+    printf("\n");
+    #endif
+
     return 0;
 }
 
