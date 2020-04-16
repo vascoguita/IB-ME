@@ -10,11 +10,12 @@ int main(){
     const char *R = "Bob";
     const char *X = "Charlie";
     const char *m = "It works!";
-    char *m_dec;
-    MKP *mkp;
-    EK *ek_S;
-    DK *dk_R, *dk_X;
-    Cipher *c;
+    char *m_dec = NULL;
+    MKP *mkp = NULL;
+    EK *ek_S = NULL;
+    DK *dk_R = NULL;
+    DK *dk_X = NULL;
+    Cipher *c = NULL;
     size_t S_len, R_len, X_len, m_len, m_dec_len;
     int i;
 

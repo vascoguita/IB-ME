@@ -70,6 +70,8 @@ int Padded_data_init(size_t p_d_len, Padded_data **p_d) {
 }
 
 void Padded_data_clear(Padded_data *p_d) {
-    free(p_d->p_d);
-    free(p_d);
+    if(p_d != NULL) {
+        free(p_d->p_d);
+        free(p_d);
+    }
 }
