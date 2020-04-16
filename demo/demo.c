@@ -53,7 +53,7 @@ int main(){
     }
     element_printf("dk of \"%s\":\n%B\n%B\n%B\n", R, dk_R->k1, dk_R->k2, dk_R->k3->h);
 
-    if(1 == Cipher_init(mkp->mpk->pairing, m_len, &c)) {
+    if(1 == Cipher_init(mkp->mpk->pairing, &c)) {
         clear(mkp, ek_S, dk_R, c, m_dec, dk_X);
         return 1;
     }
@@ -76,12 +76,12 @@ int main(){
         clear(mkp, ek_S, dk_R, c, m_dec, dk_X);
         return 1;
     }
-    if((strcmp(m, m_dec) == 0) && (m_dec_len == c->V_len)) {
-        printf("\"%s\" successfully decrypted the cipher from \"%s\", retrieved message:\n%.*s\n", R, S, (int) m_dec_len, m_dec);
-    } else {
-        printf("ASSERT ERROR: \"%s\" failed to decrypt the cipher using sender identity \"%s\"", R, S);
+    if(m_dec_len == 0) {
+        printf("ASSERT ERROR: \"%s\" failed to decrypt the cipher using sender identity \"%s\"\n", R, S);
         clear(mkp, ek_S, dk_R, c, m_dec, dk_X);
         return 1;
+    } else {
+        printf("\"%s\" successfully decrypted the cipher from \"%s\", retrieved message:\n%s\n", R, S, m_dec);
     }
 
     if(1 == DK_init(mkp->mpk->pairing, &dk_X)) {
@@ -94,16 +94,30 @@ int main(){
     }
     element_printf("dk of \"%s\":\n%B\n%B\n%B\n", X, dk_X->k1, dk_X->k2, dk_X->k3->h);
 
+    m_dec_len = c->V_len;
     if(1 == dec(mkp->mpk, dk_X, (unsigned char *)S, S_len, c, (unsigned char **)&m_dec, &m_dec_len)) {
         clear(mkp, ek_S, dk_R, c, m_dec, dk_X);
         return 1;
     }
-    if((strcmp(m, m_dec) == 0) && (m_dec_len == c->V_len)) {
-        printf("ASSERT ERROR: \"%s\" successfully decrypted the cipher from \"%s\", retrieved message:\n%.*s\n", X, S, (int) m_dec_len, m_dec);
+    if(m_dec_len == 0) {
+        printf("\"%s\" failed to decrypt the cipher using sender identity \"%s\"\n", X, S);
+    } else {
+        printf("ASSERT ERROR: \"%s\" successfully decrypted the cipher from \"%s\", retrieved message:\n%s\n", X, S, m_dec);
+        clear(mkp, ek_S, dk_R, c, m_dec, dk_X);
+        return 1;
+    }
+
+    m_dec_len = c->V_len;
+    if(1 == dec(mkp->mpk, dk_R, (unsigned char *)X, X_len, c, (unsigned char **)&m_dec, &m_dec_len)) {
+        clear(mkp, ek_S, dk_R, c, m_dec, dk_X);
+        return 1;
+    }
+    if(m_dec_len != 0) {
+        printf("ASSERT ERROR: \"%s\" successfully decrypted the cipher from \"%s\", retrieved message:\n%s\n", R, X, m_dec);
         clear(mkp, ek_S, dk_R, c, m_dec, dk_X);
         return 1;
     } else {
-        printf("\"%s\" failed to decrypt the cipher using sender identity \"%s\"", X, S);
+        printf("\"%s\" failed to decrypt the cipher using sender identity \"%s\"\n", R, X);
     }
 
     clear(mkp, ek_S, dk_R, c, m_dec, dk_X);

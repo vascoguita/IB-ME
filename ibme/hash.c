@@ -4,12 +4,13 @@
 #include <pbc/pbc.h>
 
 int H_caret(element_t e, Hash_bytes **hash){
-    int e_bytes_len, i;
+    int e_bytes_len, hash_bytes_len;
     unsigned char *e_bytes;
 
     e_bytes_len = element_length_in_bytes(e);
+    hash_bytes_len = Hash_bytes_length(e_bytes_len);
 
-    if((e == NULL) || (*hash == NULL) || ((*hash)->len != e_bytes_len - 3)) {
+    if((e == NULL) || (*hash == NULL) || ((*hash)->len < hash_bytes_len)) {
         return 1;
     }
 
@@ -22,8 +23,10 @@ int H_caret(element_t e, Hash_bytes **hash){
         return 1;
     }
 
-    for(i = 0; i <  (*hash)->len; i++) {
-        (*hash)->h[i] = e_bytes[i + 2];
+    //hash->h = e_bytes[2:-1]
+    //TODO: improve
+    for((*hash)->len = 0; ((*hash)->len < hash_bytes_len) && (((*hash)->len + 2) < e_bytes_len); ((*hash)->len)++) {
+        (*hash)->h[(*hash)->len] = e_bytes[(*hash)->len + 2];
     }
 
     free(e_bytes);
@@ -88,11 +91,11 @@ void Hash_G1_clear(Hash_G1 *hash) {
     free(hash);
 }
 
-int Hash_bytes_init(element_t e, Hash_bytes **hash) {
+int Hash_bytes_init(pairing_t pairing, Hash_bytes **hash) {
     if((*hash = (struct _hash_bytes*) malloc(sizeof(struct _hash_bytes))) == NULL) {
         return 1;
     }
-    if(((*hash)->len = element_length_in_bytes(e) - 3) < 1) {
+    if(((*hash)->len = Hash_bytes_length_from_pairing(pairing)) < 1) {
         Hash_bytes_clear(*hash);
         return 1;
     }
@@ -106,4 +109,12 @@ int Hash_bytes_init(element_t e, Hash_bytes **hash) {
 void Hash_bytes_clear(Hash_bytes *hash) {
     free(hash->h);
     free(hash);
+}
+
+int Hash_bytes_length_from_pairing(pairing_t pairing) {
+    return Hash_bytes_length(pairing_length_in_bytes_GT(pairing));
+}
+
+int Hash_bytes_length(int e_bytes_len) {
+    return e_bytes_len - 3;
 }

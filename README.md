@@ -4,11 +4,11 @@ This repository holds a C implementation of the Identity-Based Matchmaking Encry
 The provided library is a transposition of the PoC Python implementation of IB-ME scheme described in the latter paper and available here: https://github.com/cygnusv/matchmaking-encryption.git.
 
 ## Disclaimer
-This library was developed for prototyping **only**. It was not exhaustively tested and it can not be considered secure.
+This library was developed for prototyping **only**. It was not extensively tested and it can not be considered secure.
 Do **not** use it as part of a production setup.
 
 ## Dependencies
-The IB-ME library is built with [CMake](https://cmake.org/) and depends on the [PBC](https://crypto.stanford.edu/pbc/) and the [mbed TLS](https://tls.mbed.org/) libraries.
+The IB-ME library is built with [CMake](https://cmake.org/) and depends on the [PBC](https://crypto.stanford.edu/pbc/) and [mbed TLS](https://tls.mbed.org/) libraries.
 
 ## Build
     cmake .

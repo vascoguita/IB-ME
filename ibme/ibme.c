@@ -5,6 +5,7 @@
 #include "hash.h"
 #include "keys.h"
 #include "cipher.h"
+#include "padding.h"
 
 int setup(MKP **mkp) {
     if(*mkp == NULL){
@@ -58,6 +59,7 @@ int enc(MPK *mpk, EK *ek, const unsigned char *R, size_t R_len, const unsigned c
     element_t u, t, P0_u, k_R, k_S, T_ek;
     Hash_G1 *h_R;
     Hash_bytes *h_k_R, *h_k_S;
+    Padded_data *m_padded;
 
     if((mpk == NULL) || (ek == NULL) || (R == NULL) || (R_len < 1) || (m == NULL) || (m_len < 1) || (*c == NULL)) {
         return 1;
@@ -97,7 +99,7 @@ int enc(MPK *mpk, EK *ek, const unsigned char *R, size_t R_len, const unsigned c
     element_clear(T_ek);
     Hash_G1_clear(h_R);
 
-    if(1 == Hash_bytes_init(k_R, &h_k_R)) {
+    if(1 == Hash_bytes_init(mpk->pairing, &h_k_R)) {
         element_clear(k_S);
         element_clear(k_R);
         return 1;
@@ -110,7 +112,7 @@ int enc(MPK *mpk, EK *ek, const unsigned char *R, size_t R_len, const unsigned c
     }
     element_clear(k_R);
 
-    if(1 == Hash_bytes_init(k_S, &h_k_S)) {
+    if(1 == Hash_bytes_init(mpk->pairing, &h_k_S)) {
         Hash_bytes_clear(h_k_R);
         element_clear(k_S);
         return 1;
@@ -123,15 +125,29 @@ int enc(MPK *mpk, EK *ek, const unsigned char *R, size_t R_len, const unsigned c
     }
     element_clear(k_S);
 
-    if(m_len > h_k_R->len || m_len > h_k_S->len || m_len > (*c)->V_len) {
+    if(1 == Padded_data_init(h_k_S->len, &m_padded)) {
         Hash_bytes_clear(h_k_R);
         Hash_bytes_clear(h_k_S);
         return 1;
     }
-    for(((*c)->V_len) = 0; ((*c)->V_len) < m_len; ((*c)->V_len)++) {
-        ((*c)->V)[((*c)->V_len)] = m[((*c)->V_len)] ^ (h_k_R->h)[((*c)->V_len)] ^ (h_k_S->h)[((*c)->V_len)];
+    if(1 == pad(m, m_len, &m_padded)){
+        Hash_bytes_clear(h_k_R);
+        Hash_bytes_clear(h_k_S);
+        Padded_data_clear(m_padded);
+        return 1;
     }
 
+    if((m_padded->len > (*c)->V_len) || (m_padded->len > h_k_R->len) || (m_padded->len > h_k_S->len)) {
+        Hash_bytes_clear(h_k_R);
+        Hash_bytes_clear(h_k_S);
+        Padded_data_clear(m_padded);
+        return 1;
+    }
+    for(((*c)->V_len) = 0; ((*c)->V_len) < m_padded->len; ((*c)->V_len)++) {
+        ((*c)->V)[(*c)->V_len] = (m_padded->p_d)[(*c)->V_len] ^ (h_k_R->h)[(*c)->V_len] ^ (h_k_S->h)[(*c)->V_len];
+    }
+
+    Padded_data_clear(m_padded);
     Hash_bytes_clear(h_k_R);
     Hash_bytes_clear(h_k_S);
     return 0;
@@ -141,6 +157,7 @@ int dec(MPK *mpk, DK *dk, const unsigned char *S, size_t S_len, Cipher *c, unsig
     element_t k_R, k_S, k_S1, k_S2;
     Hash_G1 *h_S;
     Hash_bytes *h_k_R, *h_k_S;
+    Padded_data *m_padded;
 
     if((mpk == NULL) || (dk == NULL) || (S == NULL) || (S_len < 1) || (c == NULL) || (*m == NULL)) {
         return 1;
@@ -173,7 +190,7 @@ int dec(MPK *mpk, DK *dk, const unsigned char *S, size_t S_len, Cipher *c, unsig
     element_clear(k_S2);
     element_clear(k_S1);
 
-    if(1 == Hash_bytes_init(k_R, &h_k_R)) {
+    if(1 == Hash_bytes_init(mpk->pairing, &h_k_R)) {
         element_clear(k_S);
         element_clear(k_R);
         return 1;
@@ -186,7 +203,7 @@ int dec(MPK *mpk, DK *dk, const unsigned char *S, size_t S_len, Cipher *c, unsig
     }
     element_clear(k_R);
 
-    if(1 == Hash_bytes_init(k_S, &h_k_S)) {
+    if(1 == Hash_bytes_init(mpk->pairing, &h_k_S)) {
         Hash_bytes_clear(h_k_R);
         element_clear(k_S);
         return 1;
@@ -199,16 +216,30 @@ int dec(MPK *mpk, DK *dk, const unsigned char *S, size_t S_len, Cipher *c, unsig
     }
     element_clear(k_S);
 
-    if(c->V_len > h_k_R->len || c->V_len > h_k_S->len || c->V_len > *m_len) {
+    if(1 == Padded_data_init(h_k_S->len, &m_padded)) {
         Hash_bytes_clear(h_k_R);
         Hash_bytes_clear(h_k_S);
         return 1;
     }
-    for(*m_len = 0; *m_len < c->V_len; (*m_len)++) {
-        (*m)[*m_len] = (c->V)[*m_len] ^ (h_k_R->h)[*m_len] ^ (h_k_S->h)[*m_len];
+
+    if((c->V_len > h_k_R->len) || (c->V_len > h_k_S->len) || (c->V_len > m_padded->len)) {
+        Padded_data_clear(m_padded);
+        Hash_bytes_clear(h_k_R);
+        Hash_bytes_clear(h_k_S);
+        return 1;
     }
 
+    for(m_padded->len = 0; m_padded->len < c->V_len; (m_padded->len)++) {
+        (m_padded->p_d)[m_padded->len] = (c->V)[m_padded->len] ^ (h_k_R->h)[m_padded->len] ^ (h_k_S->h)[m_padded->len];
+    }
     Hash_bytes_clear(h_k_R);
     Hash_bytes_clear(h_k_S);
+
+    if(1 == unpad(m_padded, m, m_len)){
+        Padded_data_clear(m_padded);
+        return 1;
+    }
+
+    Padded_data_clear(m_padded);
     return 0;
 }
