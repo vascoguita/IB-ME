@@ -33,8 +33,10 @@ int Cipher_init(pairing_t pairing, Cipher ** c) {
 }
 
 void Cipher_clear(Cipher *c) {
-    free(c->V);
-    element_clear(c->U);
-    element_clear(c->T);
-    free(c);
+    if(c != NULL) {
+        free(c->V);
+        element_clear(c->U);
+        element_clear(c->T);
+        free(c);
+    }
 }

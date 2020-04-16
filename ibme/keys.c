@@ -29,10 +29,12 @@ int MPK_init(pbc_param_t param, MPK **mpk){
 }
 
 void MPK_clear(MPK *mpk) {
-    element_clear(mpk->P0);
-    element_clear(mpk->P);
-    pairing_clear(mpk->pairing);
-    free(mpk);
+    if(mpk != NULL) {
+        element_clear(mpk->P0);
+        element_clear(mpk->P);
+        pairing_clear(mpk->pairing);
+        free(mpk);
+    }
 }
 
 int MSK_init(pairing_t pairing, MSK **msk) {
@@ -55,9 +57,11 @@ int MSK_init(pairing_t pairing, MSK **msk) {
 }
 
 void MSK_clear(MSK *msk){
-    element_clear(msk->s);
-    element_clear(msk->r);
-    free(msk);
+    if(msk != NULL) {
+        element_clear(msk->s);
+        element_clear(msk->r);
+        free(msk);
+    }
 }
 
 int MKP_init(const char *param_str, MKP **mkp) {
@@ -88,9 +92,11 @@ int MKP_init(const char *param_str, MKP **mkp) {
 }
 
 void MKP_clear(MKP *mkp) {
-    MPK_clear(mkp->mpk);
-    MSK_clear(mkp->msk);
-    free(mkp);
+    if(mkp != NULL) {
+        MPK_clear(mkp->mpk);
+        MSK_clear(mkp->msk);
+        free(mkp);
+    }
 }
 
 int EK_init(pairing_t pairing, EK **ek) {
@@ -107,8 +113,10 @@ int EK_init(pairing_t pairing, EK **ek) {
 }
 
 void EK_clear(EK *ek) {
-    element_clear(ek->k);
-    free(ek);
+    if(ek != NULL) {
+        element_clear(ek->k);
+        free(ek);
+    }
 }
 
 int DK_init(pairing_t pairing, DK **dk) {
@@ -136,8 +144,10 @@ int DK_init(pairing_t pairing, DK **dk) {
 }
 
 void DK_clear(DK *dk) {
-    Hash_G1_clear(dk->k3);
-    element_clear(dk->k2);
-    element_clear(dk->k1);
-    free(dk);
+    if(dk != NULL) {
+        Hash_G1_clear(dk->k3);
+        element_clear(dk->k2);
+        element_clear(dk->k1);
+        free(dk);
+    }
 }

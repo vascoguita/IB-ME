@@ -101,6 +101,14 @@ int H(const unsigned char *X, size_t X_len, Hash_G1 **hash) {
     return 0;
 }
 
+int Hash_bytes_length_from_pairing(pairing_t pairing) {
+    return Hash_bytes_length(pairing_length_in_bytes_GT(pairing));
+}
+
+int Hash_bytes_length(int e_bytes_len) {
+    return e_bytes_len - 3;
+}
+
 int Hash_G1_init(pairing_t pairing, Hash_G1 **hash) {
     if((*hash = (struct _hash_g1*) malloc(sizeof(struct _hash_g1))) == NULL) {
         return 1;
@@ -114,8 +122,10 @@ int Hash_G1_init(pairing_t pairing, Hash_G1 **hash) {
 };
 
 void Hash_G1_clear(Hash_G1 *hash) {
-    element_clear(hash->h);
-    free(hash);
+    if(hash != NULL) {
+        element_clear(hash->h);
+        free(hash);
+    }
 }
 
 int Hash_bytes_init(pairing_t pairing, Hash_bytes **hash) {
@@ -134,14 +144,8 @@ int Hash_bytes_init(pairing_t pairing, Hash_bytes **hash) {
 }
 
 void Hash_bytes_clear(Hash_bytes *hash) {
-    free(hash->h);
-    free(hash);
-}
-
-int Hash_bytes_length_from_pairing(pairing_t pairing) {
-    return Hash_bytes_length(pairing_length_in_bytes_GT(pairing));
-}
-
-int Hash_bytes_length(int e_bytes_len) {
-    return e_bytes_len - 3;
+    if(hash != NULL) {
+        free(hash->h);
+        free(hash);
+    }
 }
