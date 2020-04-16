@@ -31,13 +31,16 @@ typedef struct _dk {
     Hash_G1 *k3;
 } DK;
 
-int MPK_init(pbc_param_t param, MPK **mpk);
+static const int rbits = 160;
+static const int qbits = 512;
+
+int MPK_init(MPK **mpk);
 void MPK_clear(MPK *mpk);
 
 int MSK_init(pairing_t pairing, MSK **msk);
 void MSK_clear(MSK *msk);
 
-int MKP_init(const char *param_str, MKP **mkp);
+int MKP_init(MKP **mkp);
 void MKP_clear(MKP *mkp);
 
 int EK_init(pairing_t pairing, EK **ek);
