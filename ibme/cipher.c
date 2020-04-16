@@ -1,8 +1,9 @@
 #include <pbc/pbc.h>
 
 #include "cipher.h"
+#include "hash.h"
 
-int Cipher_init(pairing_t pairing, size_t V_len, Cipher ** c) {
+int Cipher_init(pairing_t pairing, Cipher ** c) {
     if((*c = (struct _cipher*) malloc(sizeof(struct _cipher))) == NULL) {
         return 1;
     }
@@ -19,7 +20,7 @@ int Cipher_init(pairing_t pairing, size_t V_len, Cipher ** c) {
         return 1;
     }
 
-    if(((*c)->V_len = V_len) < 1) {
+    if(((*c)->V_len = Hash_bytes_length_from_pairing(pairing)) < 1) {
         Cipher_clear(*c);
         return 1;
     }

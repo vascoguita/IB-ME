@@ -15,12 +15,15 @@ typedef struct _hash_bytes {
 int Hash_G1_init(pairing_t pairing, Hash_G1 **hash);
 void Hash_G1_clear(Hash_G1 *hash);
 
-int Hash_bytes_init(element_t e, Hash_bytes **hash);
+int Hash_bytes_init(pairing_t pairing, Hash_bytes **hash);
 void Hash_bytes_clear(Hash_bytes *hash);
 
 int H_caret(element_t e, Hash_bytes **hash);
 int H_prime(const unsigned char *X, size_t X_len, Hash_G1 **hash);
 int H(const unsigned char *X, size_t X_len, Hash_G1 **hash);
+
+int Hash_bytes_length_from_pairing(pairing_t pairing);
+int Hash_bytes_length(int e_bytes_len);
 
 static const unsigned char mask[] = {
         0xed, 0x27, 0xdb, 0xfb, 0x02, 0x75, 0x2e, 0x0e, 0x16, 0xbc, 0x45, 0x02,

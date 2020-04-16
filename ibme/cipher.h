@@ -10,7 +10,7 @@ typedef struct _cipher {
     size_t V_len;
 } Cipher;
 
-int Cipher_init(pairing_t pairing, size_t V_len, Cipher ** c);
+int Cipher_init(pairing_t pairing, Cipher ** c);
 void Cipher_clear(Cipher *c);
 
 #endif //IBME_CIPHER_H
