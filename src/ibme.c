@@ -1,4 +1,4 @@
-#include <pbc/pbc.h>
+#include <pbc.h>
 
 #include "ibme.h"
 #include "hash.h"

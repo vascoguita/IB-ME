@@ -1,7 +1,7 @@
 #ifndef IBME_KEYS_H
 #define IBME_KEYS_H
 
-#include <pbc/pbc.h>
+#include <pbc.h>
 
 #include "hash.h"
 

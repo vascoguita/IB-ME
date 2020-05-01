@@ -1,7 +1,7 @@
 #include "hash.h"
 #include <mbedtls/sha256.h>
 #include <string.h>
-#include <pbc/pbc.h>
+#include <pbc.h>
 #include "memory.h"
 #include "utils.h"
 

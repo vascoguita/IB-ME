@@ -1,7 +1,7 @@
 #ifndef IBME_CIPHER_H
 #define IBME_CIPHER_H
 
-#include <pbc/pbc.h>
+#include <pbc.h>
 
 typedef struct _cipher {
     element_t T;

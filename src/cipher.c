@@ -1,4 +1,4 @@
-#include <pbc/pbc.h>
+#include <pbc.h>
 #include <string.h>
 
 #include "cipher.h"

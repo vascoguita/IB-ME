@@ -5,7 +5,7 @@
 #define DEBUG 0
 #endif
 
-#include <pbc/pbc.h>
+#include <pbc.h>
 
 #include "keys.h"
 #include "cipher.h"

@@ -1,7 +1,7 @@
 #ifndef IBME_HASH_H
 #define IBME_HASH_H
 
-#include <pbc/pbc.h>
+#include <pbc.h>
 
 typedef struct _hash_g1 {
     element_t h;
