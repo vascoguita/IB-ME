@@ -1,10 +1,6 @@
 #ifndef IBME_IBME_H
 #define IBME_IBME_H
 
-#ifndef DEBUG
-#define DEBUG 0
-#endif
-
 #include <pbc.h>
 
 #include "keys.h"

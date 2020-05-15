@@ -6,7 +6,16 @@
 #include "cipher.h"
 #include "padding.h"
 
+#ifdef DEBUG
+#include "memory.h"
+#endif
+
 int setup(MKP *mkp) {
+    #ifdef DEBUG
+    char *mkp_str;
+    size_t mkp_str_size;
+    #endif
+
     if(mkp == NULL){
         return 1;
     }
@@ -15,8 +24,12 @@ int setup(MKP *mkp) {
     element_random(mkp->mpk->P);
     element_pow_zn(mkp->mpk->P0, mkp->mpk->P, mkp->msk->r);
 
-    #if DEBUG
-    element_printf("mpk:\n%B\n%B\nmsk:\n%B\n%B\n", mkp->mpk->P, mkp->mpk->P0, mkp->msk->r, mkp->msk->s);
+    #ifdef DEBUG
+    mkp_str_size = MKP_snprint(NULL, 0, mkp);
+    mkp_str = ibme_malloc(mkp_str_size);
+    MKP_snprint(mkp_str, mkp_str_size, mkp);
+    DMSG("%s\n", mkp_str);
+    ibme_free(mkp_str);
     #endif
 
     return 0;
@@ -24,6 +37,11 @@ int setup(MKP *mkp) {
 
 int sk_gen(pairing_t pairing, MSK *msk, const unsigned char *S, size_t S_len, EK *ek) {
     Hash_G1 *hash;
+
+    #ifdef DEBUG
+    char *ek_str;
+    size_t ek_str_size;
+    #endif
 
     if((pairing == NULL) || (msk == NULL) || (S == NULL) || (S_len < 1) || (ek == NULL)) {
         return 1;
@@ -42,14 +60,23 @@ int sk_gen(pairing_t pairing, MSK *msk, const unsigned char *S, size_t S_len, EK
 
     Hash_G1_clear(hash);
 
-    #if DEBUG
-    element_printf("ek of \"%s\":\n%B\n", S, ek->k);
+    #ifdef DEBUG
+    ek_str_size = EK_snprint(NULL, 0, ek);
+    ek_str = ibme_malloc(ek_str_size);
+    EK_snprint(ek_str, ek_str_size, ek);
+    DMSG("%s\n", ek_str);
+    ibme_free(ek_str);
     #endif
 
     return 0;
 }
 
 int rk_gen(MSK *msk, const unsigned char *R, size_t R_len, DK *dk) {
+    #ifdef DEBUG
+    char *dk_str;
+    size_t dk_str_size;
+    #endif
+
     if((msk == NULL) || (R == NULL) || (R_len < 1) || (dk == NULL)) {
         return 1;
     }
@@ -61,8 +88,12 @@ int rk_gen(MSK *msk, const unsigned char *R, size_t R_len, DK *dk) {
     element_pow_zn(dk->k1, dk->k3->h, msk->r);
     element_pow_zn(dk->k2, dk->k3->h, msk->s);
 
-    #if DEBUG
-    element_printf("dk of \"%s\":\n%B\n%B\n%B\n", R, dk->k1, dk->k2, dk->k3->h);
+    #ifdef DEBUG
+    dk_str_size = DK_snprint(NULL, 0, dk);
+    dk_str = ibme_malloc(dk_str_size);
+    DK_snprint(dk_str, dk_str_size, dk);
+    DMSG("%s\n", dk_str);
+    ibme_free(dk_str);
     #endif
 
     return 0;
@@ -73,10 +104,10 @@ int enc(pairing_t pairing, MPK *mpk, EK *ek, const unsigned char *R, size_t R_le
     Hash_G1 *h_R;
     Hash_bytes *h_k_R, *h_k_S;
     Padded_data *m_padded;
-    #if DEBUG
-    int i;
+    #ifdef DEBUG
+    char *cipher_str;
+    size_t cipher_str_size;
     #endif
-
 
     if((pairing == NULL) || (mpk == NULL) || (ek == NULL) || (R == NULL) || (R_len < 1) || (m == NULL) || (m_len < 1) || (c == NULL)) {
         return 1;
@@ -166,13 +197,14 @@ int enc(pairing_t pairing, MPK *mpk, EK *ek, const unsigned char *R, size_t R_le
     Hash_bytes_clear(h_k_R);
     Hash_bytes_clear(h_k_S);
 
-    #if DEBUG
-    element_printf("cipher of \"%s\" to \"%s\":\n%B\n%B\n", m, R, c->T, c->U);
-    for(i = 0; i < c->V_len; i++) {
-        printf("\\x%x", c->V[i]);
-    }
-    printf("\n");
+    #ifdef DEBUG
+    cipher_str_size = Cipher_snprint(NULL, 0, c);
+    cipher_str = ibme_malloc(cipher_str_size);
+    Cipher_snprint(cipher_str, cipher_str_size, c);
+    DMSG("%s\n", cipher_str);
+    ibme_free(cipher_str);
     #endif
+
 
     return 0;
 }

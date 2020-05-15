@@ -38,6 +38,4 @@ void *symtab_at(symtab_t t, const char *key);
 
 void symtab_forall_data(symtab_t t, void (*func)(void *));
 
-#pragma GCC visibility pop
-
 #endif //__PBC_SYMTAB_H__
