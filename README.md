@@ -20,7 +20,7 @@ https://github.com/vascoguita/optee_pbc
 You should install the PBC library before building the IB-ME library.
 The instructions to do so are available in the above repository.
 
-## Installation Instructions
+## Installation instructions
     make CROSS_COMPILE=<cross_compile> PLATFORM=<platform> TA_DEV_KIT_DIR=<ta_dev_kit_dir>
     make install TA_DEV_KIT_DIR=<ta_dev_kit_dir>
 
