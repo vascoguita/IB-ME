@@ -11,10 +11,10 @@ int pad(const unsigned char *data, size_t data_len, Padded_data *p_d) {
 
     padding_byte = p_d->len - data_len;
 
-    for(i = 0; i < data_len; i++) {
+    for(i = 0; (size_t)i < data_len; i++) {
         (p_d->p_d)[i] = data[i];
     }
-    for(i = data_len; i < p_d->len; i++) {
+    for(i = data_len; (size_t)i < p_d->len; i++) {
         (p_d->p_d)[i] = padding_byte;
     }
     return 0;
@@ -34,7 +34,7 @@ int unpad(const Padded_data *p_d, unsigned char *data, size_t *data_len) {
     }
     data_len_tmp = p_d->len - (p_d->p_d)[p_d->len - 1];
 
-    for(i = data_len_tmp; i < p_d->len; i++) {
+    for(i = data_len_tmp; (size_t)i < p_d->len; i++) {
         if((p_d->p_d)[i] != (p_d->len - data_len_tmp)) {
             *data_len = 0;
             return 0;
@@ -45,7 +45,7 @@ int unpad(const Padded_data *p_d, unsigned char *data, size_t *data_len) {
         return 1;
     }
 
-    for(i = 0; i < data_len_tmp; i++) {
+    for(i = 0; (size_t)i < data_len_tmp; i++) {
         data[i] = (p_d->p_d)[i];
     }
     *data_len = i;

@@ -85,7 +85,7 @@ int Cipher_snprint(char *s, size_t n, Cipher *c) {
         return status;
     }
     clip_sub(&result, status, &left, n);
-    for(i = 0; i < c->V_len; i++) {
+    for(i = 0; (size_t)i < c->V_len; i++) {
         status = snprintf(s + result, left, "\\x%x", c->V[i]);
         if (status < 0) {
             return status;
@@ -138,7 +138,7 @@ int Cipher_set_str(char *s, size_t n, Cipher *c) {
         return 0;
     }
     clip_sub(&result, status, &left, n);
-    for(i = 0; i < c->V_len; i++) {
+    for(i = 0; (size_t)i < c->V_len; i++) {
         status = strlen("\\x");
         if(strncmp(s + result, "\\x", status) != 0) {
             return 0;

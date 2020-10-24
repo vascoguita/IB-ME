@@ -12,7 +12,7 @@ int H_caret(element_t e, Hash_bytes *hash){
     e_bytes_len = element_length_in_bytes(e);
     hash_bytes_len = Hash_bytes_length(e_bytes_len);
 
-    if((e == NULL) || (hash == NULL) || (hash->len < hash_bytes_len)) {
+    if((e == NULL) || (hash == NULL) || (hash->len < (size_t)hash_bytes_len)) {
         return 1;
     }
 
@@ -25,9 +25,8 @@ int H_caret(element_t e, Hash_bytes *hash){
         return 1;
     }
 
-    //hash->h = e_bytes[2:-1]
     //TODO: improve
-    for(hash->len = 0; (hash->len < hash_bytes_len) && ((hash->len + 2) < e_bytes_len); (hash->len)++) {
+    for(hash->len = 0; (hash->len < (size_t)hash_bytes_len) && ((hash->len + 2) < (size_t)e_bytes_len); (hash->len)++) {
         hash->h[hash->len] = e_bytes[hash->len + 2];
     }
 
@@ -47,7 +46,7 @@ int H_prime(const unsigned char *X, size_t X_len, Hash_G1 *hash) {
         return 1;
     }
 
-    for(i = 0; i < X_len; i++) {
+    for(i = 0; (size_t)i < X_len; i++) {
         _X[i] = X[i] ^ mask[i];
     }
 

@@ -32,6 +32,7 @@ TEE_Result TA_CreateEntryPoint(void) {
     char *c_str;
 
     size_t mpk_str_len, ek_S_str_len, dk_R_str_len, c_str_len;
+    int tmp_len;
 
     S_len = strlen(S) + 1;
     R_len = strlen(R) + 1;
@@ -94,7 +95,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         return 1;
     }
 
-    if((mpk_str_len = MPK_snprint(NULL, 0, mkp->mpk)) < 0) {
+    if((tmp_len = MPK_snprint(NULL, 0, mkp->mpk)) < 0) {
         DK_clear(dk_X);
         DK_clear(dk_R);
         EK_clear(ek_S);
@@ -102,6 +103,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return 1;
     }
+    mpk_str_len = (size_t)tmp_len;
     if((mpk_str = (char *) malloc((mpk_str_len + 1) * sizeof(char))) == NULL) {
         DK_clear(dk_X);
         DK_clear(dk_R);
@@ -110,7 +112,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return 1;
     }
-    if(mpk_str_len != MPK_snprint(mpk_str, (mpk_str_len + 1) , mkp->mpk)) {
+    if(tmp_len != MPK_snprint(mpk_str, (mpk_str_len + 1) , mkp->mpk)) {
         free(mpk_str);
         DK_clear(dk_X);
         DK_clear(dk_R);
@@ -139,7 +141,7 @@ TEE_Result TA_CreateEntryPoint(void) {
     }
     free(mpk_str);
 
-    if((ek_S_str_len = EK_snprint(NULL, 0, ek_S)) < 0) {
+    if((tmp_len = EK_snprint(NULL, 0, ek_S)) < 0) {
         DK_clear(dk_X);
         DK_clear(dk_R);
         EK_clear(ek_S);
@@ -147,6 +149,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return 1;
     }
+    ek_S_str_len = (size_t)tmp_len;
     if((ek_S_str = (char *) malloc((ek_S_str_len + 1) * sizeof(char))) == NULL) {
         DK_clear(dk_X);
         DK_clear(dk_R);
@@ -154,7 +157,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         MKP_clear(mkp);
         pairing_clear(pairing);
     }
-    if(ek_S_str_len != EK_snprint(ek_S_str, (ek_S_str_len + 1) , ek_S)) {
+    if(tmp_len != EK_snprint(ek_S_str, (ek_S_str_len + 1) , ek_S)) {
         free(ek_S_str);
         DK_clear(dk_X);
         DK_clear(dk_R);
@@ -183,7 +186,7 @@ TEE_Result TA_CreateEntryPoint(void) {
     }
     free(ek_S_str);
 
-    if((dk_R_str_len = DK_snprint(NULL, 0, dk_R)) < 0) {
+    if((tmp_len = DK_snprint(NULL, 0, dk_R)) < 0) {
         DK_clear(dk_X);
         DK_clear(dk_R);
         EK_clear(ek_S);
@@ -191,6 +194,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return 1;
     }
+    dk_R_str_len = (size_t)tmp_len;
     if((dk_R_str = (char *) malloc((dk_R_str_len + 1) * sizeof(char))) == NULL) {
         DK_clear(dk_X);
         DK_clear(dk_R);
@@ -199,7 +203,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return 1;
     }
-    if(dk_R_str_len != DK_snprint(dk_R_str, (dk_R_str_len + 1) , dk_R)) {
+    if(tmp_len != DK_snprint(dk_R_str, (dk_R_str_len + 1) , dk_R)) {
         free(ek_S_str);
         DK_clear(dk_X);
         DK_clear(dk_R);
@@ -245,18 +249,19 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return 1;
     } else {
-        IMSG("\"%s\" encrypted message \"%s\" using receiver identity \"%s\"\n", S, m, R);
+        IMSG("\"%s\" encrypted message \"%s\" using receiver identity \"%s\".\n", S, m, R);
     }
     MKP_clear(mkp);
     EK_clear(ek_S);
 
-    if((c_str_len = Cipher_snprint(NULL, 0, c)) < 0) {
+    if((tmp_len = Cipher_snprint(NULL, 0, c)) < 0) {
         Cipher_clear(c);
         DK_clear(dk_X);
         DK_clear(dk_R);
         pairing_clear(pairing);
         return 1;
     }
+    c_str_len = (size_t)tmp_len;
     if((c_str = (char *) malloc((c_str_len + 1) * sizeof(char))) == NULL) {
         Cipher_clear(c);
         DK_clear(dk_X);
@@ -264,7 +269,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return 1;
     }
-    if(c_str_len != Cipher_snprint(c_str, (c_str_len + 1) , c)) {
+    if(tmp_len != Cipher_snprint(c_str, (c_str_len + 1) , c)) {
         free(c_str);
         Cipher_clear(c);
         DK_clear(dk_X);
@@ -307,7 +312,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         return 1;
     }
     if(m_dec_len == 0) {
-        IMSG("ASSERT ERROR: \"%s\" failed to decrypt the cipher using sender identity \"%s\"\n", R, S);
+        IMSG("ASSERT ERROR: \"%s\" failed to decrypt the cipher using sender identity \"%s\".\n", R, S);
         free(m_dec);
         Cipher_clear(c);
         DK_clear(dk_X);
@@ -315,7 +320,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return 1;
     } else {
-        IMSG("\"%s\" successfully decrypted the cipher from \"%s\", retrieved message:\n%s\n", R, S, m_dec);
+        IMSG("\"%s\" successfully decrypted the cipher using sender identity \"%s\".\nRetrieved message:\"%s\".\n", R, S, m_dec);
     }
 
     m_dec_len = c->V_len;
@@ -328,9 +333,9 @@ TEE_Result TA_CreateEntryPoint(void) {
         return 1;
     }
     if(m_dec_len == 0) {
-        IMSG("\"%s\" failed to decrypt the cipher using sender identity \"%s\"\n", X, S);
+        IMSG("\"%s\" failed to decrypt the cipher using sender identity \"%s\".\n", X, S);
     } else {
-        IMSG("ASSERT ERROR: \"%s\" successfully decrypted the cipher from \"%s\", retrieved message:\n%s\n", X, S, m_dec);
+        IMSG("ASSERT ERROR: \"%s\" successfully decrypted the cipher using sender identity \"%s\".\nRetrieved message:\"%s\".\n", X, S, m_dec);
         free(m_dec);
         Cipher_clear(c);
         DK_clear(dk_X);
@@ -349,14 +354,14 @@ TEE_Result TA_CreateEntryPoint(void) {
         return 1;
     }
     if(m_dec_len != 0) {
-        IMSG("ASSERT ERROR: \"%s\" successfully decrypted the cipher from \"%s\", retrieved message:\n%s\n", R, X, m_dec);
+        IMSG("ASSERT ERROR: \"%s\" successfully decrypted the cipher using sender identity \"%s\".\nRetrieved message:\"%s\".\n", R, X, m_dec);
         free(m_dec);
         Cipher_clear(c);
         DK_clear(dk_R);
         pairing_clear(pairing);
         return 1;
     } else {
-        IMSG("\"%s\" failed to decrypt the cipher using sender identity \"%s\"\n", R, X);
+        IMSG("\"%s\" failed to decrypt the cipher using sender identity \"%s\".\n", R, X);
     }
 
     free(m_dec);
