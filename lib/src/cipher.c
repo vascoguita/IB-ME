@@ -23,12 +23,12 @@ int Cipher_init(pairing_t pairing, Cipher **c) {
         return 1;
     }
 
-    if(((*c)->V_len = Hash_bytes_length_from_pairing(pairing)) < 1) {
+    if(((*c)->V_size = Hash_bytes_length_from_pairing(pairing)) < 1) {
         Cipher_clear(*c);
         return 1;
     }
 
-    if(((*c)->V = (unsigned char*) malloc((*c)->V_len * sizeof(unsigned char))) == NULL) {
+    if(((*c)->V = (unsigned char*) malloc((*c)->V_size * sizeof(unsigned char))) == NULL) {
         Cipher_clear(*c);
         return 1;
     }
@@ -75,7 +75,7 @@ int Cipher_snprint(char *s, size_t n, Cipher *c) {
         return status;
     }
     clip_sub(&result, status, &left, n);
-    status = snprintf(s + result, left, "%zu", c->V_len);
+    status = snprintf(s + result, left, "%zu", c->V_size);
     if (status < 0) {
         return status;
     }
@@ -85,7 +85,7 @@ int Cipher_snprint(char *s, size_t n, Cipher *c) {
         return status;
     }
     clip_sub(&result, status, &left, n);
-    for(i = 0; (size_t)i < c->V_len; i++) {
+    for(i = 0; (size_t)i < c->V_size; i++) {
         status = snprintf(s + result, left, "\\x%x", c->V[i]);
         if (status < 0) {
             return status;
@@ -128,17 +128,17 @@ int Cipher_set_str(char *s, size_t n, Cipher *c) {
         return 0;
     }
     clip_sub(&result, status, &left, n);
-    if((c->V_len = strtoul(s + result, NULL, 0)) == 0) {
+    if((c->V_size = strtoul(s + result, NULL, 0)) == 0) {
         return 0;
     }
-    status = snprintf(NULL, 0, "%zu", c->V_len);
+    status = snprintf(NULL, 0, "%zu", c->V_size);
     clip_sub(&result, status, &left, n);
     status = strlen(", ");
     if(strncmp(s + result, ", ", status) != 0) {
         return 0;
     }
     clip_sub(&result, status, &left, n);
-    for(i = 0; (size_t)i < c->V_len; i++) {
+    for(i = 0; (size_t)i < c->V_size; i++) {
         status = strlen("\\x");
         if(strncmp(s + result, "\\x", status) != 0) {
             return 0;

@@ -7,7 +7,7 @@ typedef struct _cipher {
     element_t T;
     element_t U;
     unsigned char *V;
-    size_t V_len;
+    size_t V_size;
 } Cipher;
 
 int Cipher_init(pairing_t pairing, Cipher **c);

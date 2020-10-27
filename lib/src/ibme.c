@@ -26,7 +26,7 @@ int setup(MKP *mkp) {
     element_pow_zn(mkp->mpk->P0, mkp->mpk->P, mkp->msk->r);
 
     #ifdef DEBUG
-    mkp_str_size = MKP_snprint(NULL, 0, mkp);
+    mkp_str_size = MKP_snprint(NULL, 0, mkp) + 1;
     mkp_str = malloc(mkp_str_size);
     MKP_snprint(mkp_str, mkp_str_size, mkp);
     DMSG("%s\n", mkp_str);
@@ -36,7 +36,7 @@ int setup(MKP *mkp) {
     return 0;
 }
 
-int sk_gen(pairing_t pairing, MSK *msk, const unsigned char *S, size_t S_len, EK *ek) {
+int sk_gen(pairing_t pairing, MSK *msk, const unsigned char *S, size_t S_size, EK *ek) {
     Hash_G1 *hash;
 
     #ifdef DEBUG
@@ -44,7 +44,7 @@ int sk_gen(pairing_t pairing, MSK *msk, const unsigned char *S, size_t S_len, EK
     size_t ek_str_size;
     #endif
 
-    if((pairing == NULL) || (msk == NULL) || (S == NULL) || (S_len < 1) || (ek == NULL)) {
+    if((pairing == NULL) || (msk == NULL) || (S == NULL) || (S_size < 1) || (ek == NULL)) {
         return 1;
     }
 
@@ -52,7 +52,7 @@ int sk_gen(pairing_t pairing, MSK *msk, const unsigned char *S, size_t S_len, EK
         return 1;
     }
 
-    if(1 == H_prime(S, S_len, hash)) {
+    if(1 == H_prime(S, S_size, hash)) {
         Hash_G1_clear(hash);
         return 1;
     }
@@ -62,7 +62,7 @@ int sk_gen(pairing_t pairing, MSK *msk, const unsigned char *S, size_t S_len, EK
     Hash_G1_clear(hash);
 
     #ifdef DEBUG
-    ek_str_size = EK_snprint(NULL, 0, ek);
+    ek_str_size = EK_snprint(NULL, 0, ek) + 1;
     ek_str = malloc(ek_str_size);
     EK_snprint(ek_str, ek_str_size, ek);
     DMSG("%s\n", ek_str);
@@ -72,17 +72,17 @@ int sk_gen(pairing_t pairing, MSK *msk, const unsigned char *S, size_t S_len, EK
     return 0;
 }
 
-int rk_gen(MSK *msk, const unsigned char *R, size_t R_len, DK *dk) {
+int rk_gen(MSK *msk, const unsigned char *R, size_t R_size, DK *dk) {
     #ifdef DEBUG
     char *dk_str;
     size_t dk_str_size;
     #endif
 
-    if((msk == NULL) || (R == NULL) || (R_len < 1) || (dk == NULL)) {
+    if((msk == NULL) || (R == NULL) || (R_size < 1) || (dk == NULL)) {
         return 1;
     }
 
-    if(1 == H(R, R_len, dk->k3) ){
+    if(1 == H(R, R_size, dk->k3) ){
         return 1;
     }
 
@@ -90,7 +90,7 @@ int rk_gen(MSK *msk, const unsigned char *R, size_t R_len, DK *dk) {
     element_pow_zn(dk->k2, dk->k3->h, msk->s);
 
     #ifdef DEBUG
-    dk_str_size = DK_snprint(NULL, 0, dk);
+    dk_str_size = DK_snprint(NULL, 0, dk) + 1;
     dk_str = malloc(dk_str_size);
     DK_snprint(dk_str, dk_str_size, dk);
     DMSG("%s\n", dk_str);
@@ -100,17 +100,19 @@ int rk_gen(MSK *msk, const unsigned char *R, size_t R_len, DK *dk) {
     return 0;
 }
 
-int enc(pairing_t pairing, MPK *mpk, EK *ek, const unsigned char *R, size_t R_len, const unsigned char *m, size_t m_len, Cipher *c){
+int enc(pairing_t pairing, MPK *mpk, EK *ek, const unsigned char *R, size_t R_size, const unsigned char *m, size_t m_size, Cipher *c){
     element_t u, t, P0_u, k_R, k_S, T_ek;
     Hash_G1 *h_R;
     Hash_bytes *h_k_R, *h_k_S;
-    Padded_data *m_padded;
+    uint8_t *m_padded;
+    size_t m_padded_size, tmp_bs;
+    uint8_t bs;
     #ifdef DEBUG
     char *cipher_str;
     size_t cipher_str_size;
     #endif
 
-    if((pairing == NULL) || (mpk == NULL) || (ek == NULL) || (R == NULL) || (R_len < 1) || (m == NULL) || (m_len < 1) || (c == NULL)) {
+    if((pairing == NULL) || (mpk == NULL) || (ek == NULL) || (R == NULL) || (R_size < 1) || (m == NULL) || (m_size < 1) || (c == NULL)) {
         return 1;
     }
 
@@ -130,7 +132,7 @@ int enc(pairing_t pairing, MPK *mpk, EK *ek, const unsigned char *R, size_t R_le
         element_clear(P0_u);
         return 1;
     }
-    if(1 == H(R, R_len, h_R)) {
+    if(1 == H(R, R_size, h_R)) {
         element_clear(P0_u);
         Hash_G1_clear(h_R);
         return 1;
@@ -172,51 +174,61 @@ int enc(pairing_t pairing, MPK *mpk, EK *ek, const unsigned char *R, size_t R_le
     }
     element_clear(k_S);
 
-    if(1 == Padded_data_init(h_k_S->len, &m_padded)) {
+    tmp_bs = h_k_S->len < h_k_R->len ? h_k_S->len : h_k_R->len;
+    bs = 0xff < tmp_bs ? 0xff : (uint8_t)tmp_bs;
+
+    m_padded_size = 0;
+    if(pad(m, m_size, bs, NULL, &m_padded_size) != 0) {
         Hash_bytes_clear(h_k_R);
         Hash_bytes_clear(h_k_S);
         return 1;
     }
-    if(1 == pad(m, m_len, m_padded)){
+    if(!(m_padded = malloc(m_padded_size))) {
         Hash_bytes_clear(h_k_R);
         Hash_bytes_clear(h_k_S);
-        Padded_data_clear(m_padded);
+        return 1;
+    }
+    if(pad(m, m_size, bs, m_padded, &m_padded_size) != 0) {
+        free(m_padded);
+        Hash_bytes_clear(h_k_R);
+        Hash_bytes_clear(h_k_S);
         return 1;
     }
 
-    if((m_padded->len > c->V_len) || (m_padded->len > h_k_R->len) || (m_padded->len > h_k_S->len)) {
+    if((m_padded_size > c->V_size) || (m_padded_size > h_k_R->len) || (m_padded_size > h_k_S->len)) {
+        free(m_padded);
         Hash_bytes_clear(h_k_R);
         Hash_bytes_clear(h_k_S);
-        Padded_data_clear(m_padded);
         return 1;
     }
-    for(c->V_len = 0; c->V_len < m_padded->len; c->V_len++) {
-        c->V[c->V_len] = m_padded->p_d[c->V_len] ^ h_k_R->h[c->V_len] ^ h_k_S->h[c->V_len];
+    for(c->V_size = 0; c->V_size < m_padded_size; c->V_size++) {
+        c->V[c->V_size] = m_padded[c->V_size] ^ h_k_R->h[c->V_size] ^ h_k_S->h[c->V_size];
     }
 
-    Padded_data_clear(m_padded);
+    free(m_padded);
     Hash_bytes_clear(h_k_R);
     Hash_bytes_clear(h_k_S);
 
     #ifdef DEBUG
-    cipher_str_size = Cipher_snprint(NULL, 0, c);
+    cipher_str_size = Cipher_snprint(NULL, 0, c) + 1;
     cipher_str = malloc(cipher_str_size);
     Cipher_snprint(cipher_str, cipher_str_size, c);
     DMSG("%s\n", cipher_str);
     free(cipher_str);
     #endif
 
-
     return 0;
 }
 
-int dec(pairing_t pairing, DK *dk, const unsigned char *S, size_t S_len, Cipher *c, unsigned char *m, size_t *m_len) {
+int dec(pairing_t pairing, DK *dk, const unsigned char *S, size_t S_size, Cipher *c, unsigned char *m, size_t *m_size) {
     element_t k_R, k_S, k_S1, k_S2;
     Hash_G1 *h_S;
     Hash_bytes *h_k_R, *h_k_S;
-    Padded_data *m_padded;
+    uint8_t *m_padded;
+    size_t m_padded_size, tmp_bs;
+    uint8_t bs;
 
-    if((pairing == NULL) || (dk == NULL) || (S == NULL) || (S_len < 1) || (c == NULL) || (m == NULL)) {
+    if((pairing == NULL) || (dk == NULL) || (S == NULL) || (S_size < 1) || (c == NULL)) {
         return 1;
     }
 
@@ -227,7 +239,7 @@ int dec(pairing_t pairing, DK *dk, const unsigned char *S, size_t S_len, Cipher 
         element_clear(k_R);
         return 1;
     }
-    if(1 == H_prime(S, S_len, h_S)) {
+    if(1 == H_prime(S, S_size, h_S)) {
         element_clear(k_R);
         Hash_G1_clear(h_S);
         return 1;
@@ -271,30 +283,33 @@ int dec(pairing_t pairing, DK *dk, const unsigned char *S, size_t S_len, Cipher 
     }
     element_clear(k_S);
 
-    if(1 == Padded_data_init(h_k_S->len, &m_padded)) {
+    if((c->V_size > h_k_R->len) || (c->V_size > h_k_S->len)) {
         Hash_bytes_clear(h_k_R);
         Hash_bytes_clear(h_k_S);
         return 1;
     }
 
-    if((c->V_len > h_k_R->len) || (c->V_len > h_k_S->len) || (c->V_len > m_padded->len)) {
-        Padded_data_clear(m_padded);
+    if(!(m_padded = malloc(c->V_size))) {
         Hash_bytes_clear(h_k_R);
         Hash_bytes_clear(h_k_S);
         return 1;
     }
 
-    for(m_padded->len = 0; m_padded->len < c->V_len; m_padded->len++) {
-        m_padded->p_d[m_padded->len] = c->V[m_padded->len] ^ h_k_R->h[m_padded->len] ^ h_k_S->h[m_padded->len];
+    for(m_padded_size = 0; m_padded_size < c->V_size; m_padded_size++) {
+        m_padded[m_padded_size] = c->V[m_padded_size] ^ h_k_R->h[m_padded_size] ^ h_k_S->h[m_padded_size];
     }
+
+    tmp_bs = h_k_S->len < h_k_R->len ? h_k_S->len : h_k_R->len;
+    bs = 0xff < tmp_bs ? 0xff : (uint8_t)tmp_bs;
+
     Hash_bytes_clear(h_k_R);
     Hash_bytes_clear(h_k_S);
 
-    if(1 == unpad(m_padded, m, m_len)){
-        Padded_data_clear(m_padded);
+    if(unpad(m_padded, m_padded_size, bs, m, m_size) != 0){
+        free(m_padded);
         return 1;
     }
 
-    Padded_data_clear(m_padded);
+    free(m_padded);
     return 0;
 }
