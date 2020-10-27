@@ -11,7 +11,7 @@
 #include <tee_internal_api.h>
 #endif
 
-int setup(MKP *mkp) {
+int ibme_setup(MKP *mkp) {
     #ifdef DEBUG
     char *mkp_str;
     size_t mkp_str_size;
@@ -36,7 +36,7 @@ int setup(MKP *mkp) {
     return 0;
 }
 
-int sk_gen(pairing_t pairing, MSK *msk, const unsigned char *S, size_t S_size, EK *ek) {
+int ibme_sk_gen(pairing_t pairing, MSK *msk, const unsigned char *S, size_t S_size, EK *ek) {
     Hash_G1 *hash;
 
     #ifdef DEBUG
@@ -72,7 +72,7 @@ int sk_gen(pairing_t pairing, MSK *msk, const unsigned char *S, size_t S_size, E
     return 0;
 }
 
-int rk_gen(MSK *msk, const unsigned char *R, size_t R_size, DK *dk) {
+int ibme_rk_gen(MSK *msk, const unsigned char *R, size_t R_size, DK *dk) {
     #ifdef DEBUG
     char *dk_str;
     size_t dk_str_size;
@@ -100,7 +100,7 @@ int rk_gen(MSK *msk, const unsigned char *R, size_t R_size, DK *dk) {
     return 0;
 }
 
-int enc(pairing_t pairing, MPK *mpk, EK *ek, const unsigned char *R, size_t R_size, const unsigned char *m, size_t m_size, Cipher *c){
+int ibme_enc(pairing_t pairing, MPK *mpk, EK *ek, const unsigned char *R, size_t R_size, const unsigned char *m, size_t m_size, Cipher *c){
     element_t u, t, P0_u, k_R, k_S, T_ek;
     Hash_G1 *h_R;
     Hash_bytes *h_k_R, *h_k_S;
@@ -220,7 +220,7 @@ int enc(pairing_t pairing, MPK *mpk, EK *ek, const unsigned char *R, size_t R_si
     return 0;
 }
 
-int dec(pairing_t pairing, DK *dk, const unsigned char *S, size_t S_size, Cipher *c, unsigned char *m, size_t *m_size) {
+int ibme_dec(pairing_t pairing, DK *dk, const unsigned char *S, size_t S_size, Cipher *c, unsigned char *m, size_t *m_size) {
     element_t k_R, k_S, k_S1, k_S2;
     Hash_G1 *h_S;
     Hash_bytes *h_k_R, *h_k_S;

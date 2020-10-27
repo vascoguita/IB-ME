@@ -47,7 +47,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return TEE_ERROR_GENERIC;
     }
-    if(1 == setup(mkp)) {
+    if(1 == ibme_setup(mkp)) {
         MKP_clear(mkp);
         pairing_clear(pairing);
         return TEE_ERROR_GENERIC;
@@ -58,7 +58,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return TEE_ERROR_GENERIC;
     }
-    if(1 == sk_gen(pairing, mkp->msk, (unsigned char *)S, S_size, ek_S)) {
+    if(1 == ibme_sk_gen(pairing, mkp->msk, (unsigned char *)S, S_size, ek_S)) {
         EK_clear(ek_S);
         MKP_clear(mkp);
         pairing_clear(pairing);
@@ -71,7 +71,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return TEE_ERROR_GENERIC;
     }
-    if(1 == rk_gen(mkp->msk, (unsigned char *)R, R_size, dk_R)) {
+    if(1 == ibme_rk_gen(mkp->msk, (unsigned char *)R, R_size, dk_R)) {
         DK_clear(dk_R);
         EK_clear(ek_S);
         MKP_clear(mkp);
@@ -86,7 +86,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return TEE_ERROR_GENERIC;
     }
-    if(1 == rk_gen(mkp->msk, (unsigned char *)X, X_size, dk_X)) {
+    if(1 == ibme_rk_gen(mkp->msk, (unsigned char *)X, X_size, dk_X)) {
         DK_clear(dk_X);
         DK_clear(dk_R);
         EK_clear(ek_S);
@@ -241,7 +241,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return TEE_ERROR_GENERIC;
     }
-    if(1 == enc(pairing, mkp->mpk, ek_S, (unsigned char *)R, R_size, (unsigned char *)m, m_size, c)) {
+    if(1 == ibme_enc(pairing, mkp->mpk, ek_S, (unsigned char *)R, R_size, (unsigned char *)m, m_size, c)) {
         Cipher_clear(c);
         DK_clear(dk_X);
         DK_clear(dk_R);
@@ -297,7 +297,7 @@ TEE_Result TA_CreateEntryPoint(void) {
     free(c_str);
 
     m_dec_size = 0;
-    if(1 == dec(pairing, dk_R, (unsigned char *)S, S_size, c, NULL, &m_dec_size)) {
+    if(1 == ibme_dec(pairing, dk_R, (unsigned char *)S, S_size, c, NULL, &m_dec_size)) {
         Cipher_clear(c);
         DK_clear(dk_X);
         DK_clear(dk_R);
@@ -311,7 +311,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         pairing_clear(pairing);
         return TEE_ERROR_GENERIC;
     }
-    if(1 == dec(pairing, dk_R, (unsigned char *)S, S_size, c, (unsigned char *)m_dec, &m_dec_size)) {
+    if(1 == ibme_dec(pairing, dk_R, (unsigned char *)S, S_size, c, (unsigned char *)m_dec, &m_dec_size)) {
         IMSG("ASSERT ERROR: \"%s\" failed to decrypt the cipher using sender identity \"%s\".\n", R, S);
         free(m_dec);
         Cipher_clear(c);
@@ -323,7 +323,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         IMSG("\"%s\" successfully decrypted the cipher using sender identity \"%s\".\nRetrieved message:\"%s\".\n", R, S, m_dec);
     }
 
-    if(1 == dec(pairing, dk_X, (unsigned char *)S, S_size, c, (unsigned char *)m_dec, &m_dec_size)) {
+    if(1 == ibme_dec(pairing, dk_X, (unsigned char *)S, S_size, c, (unsigned char *)m_dec, &m_dec_size)) {
         IMSG("\"%s\" failed to decrypt the cipher using sender identity \"%s\".\n", X, S);
     } else {
         IMSG("ASSERT ERROR: \"%s\" successfully decrypted the cipher using sender identity \"%s\".\nRetrieved message:\"%s\".\n", X, S, m_dec);
@@ -336,7 +336,7 @@ TEE_Result TA_CreateEntryPoint(void) {
     }
     DK_clear(dk_X);
 
-    if(1 == dec(pairing, dk_R, (unsigned char *)X, X_size, c, (unsigned char *)m_dec, &m_dec_size)) {
+    if(1 == ibme_dec(pairing, dk_R, (unsigned char *)X, X_size, c, (unsigned char *)m_dec, &m_dec_size)) {
         IMSG("\"%s\" failed to decrypt the cipher using sender identity \"%s\".\n", R, X);
     } else {
         IMSG("ASSERT ERROR: \"%s\" successfully decrypted the cipher using sender identity \"%s\".\nRetrieved message:\"%s\".\n", R, X, m_dec);
