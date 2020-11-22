@@ -3,14 +3,15 @@
 
 #include <pbc/pbc.h>
 
-typedef struct _cipher {
+typedef struct _cipher
+{
     element_t T;
     element_t U;
     unsigned char *V;
     size_t V_size;
 } Cipher;
 
-int Cipher_init(pairing_t pairing, Cipher **c);
+Cipher *Cipher_init(pairing_t pairing);
 void Cipher_clear(Cipher *c);
 int Cipher_snprint(char *s, size_t n, Cipher *c);
 int Cipher_set_str(char *s, size_t n, Cipher *c);

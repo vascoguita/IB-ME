@@ -43,7 +43,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         return TEE_ERROR_GENERIC;
     }
 
-    if(1 == MKP_init(pairing, &mkp)) {
+    if(!(mkp = MKP_init(pairing))) {
         pairing_clear(pairing);
         return TEE_ERROR_GENERIC;
     }
@@ -53,7 +53,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         return TEE_ERROR_GENERIC;
     }
 
-    if(1 == EK_init(pairing, &ek_S)) {
+    if(!(ek_S = EK_init(pairing))) {
         MKP_clear(mkp);
         pairing_clear(pairing);
         return TEE_ERROR_GENERIC;
@@ -65,7 +65,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         return TEE_ERROR_GENERIC;
     }
 
-    if(1 == DK_init(pairing, &dk_R)) {
+    if(!(dk_R = DK_init(pairing))) {
         EK_clear(ek_S);
         MKP_clear(mkp);
         pairing_clear(pairing);
@@ -79,7 +79,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         return TEE_ERROR_GENERIC;
     }
 
-    if(1 == DK_init(pairing, &dk_X)) {
+    if(!(dk_X = DK_init(pairing))) {
         DK_clear(dk_R);
         EK_clear(ek_S);
         MKP_clear(mkp);
@@ -122,7 +122,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         return TEE_ERROR_GENERIC;
     }
     MPK_clear(mkp->mpk);
-    if(1 == MPK_init(pairing, &(mkp->mpk))) {
+    if(!(mkp->mpk = MPK_init(pairing))) {
         free(mpk_str);
         DK_clear(dk_X);
         DK_clear(dk_R);
@@ -168,7 +168,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         return TEE_ERROR_GENERIC;
     }
     EK_clear(ek_S);
-    if(1 == EK_init(pairing, &ek_S)) {
+    if(!(ek_S = EK_init(pairing))) {
         free(ek_S_str);
         DK_clear(dk_X);
         DK_clear(dk_R);
@@ -214,7 +214,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         return TEE_ERROR_GENERIC;
     }
     DK_clear(dk_R);
-    if(1 == DK_init(pairing, &dk_R)) {
+    if(!(dk_R = DK_init(pairing))) {
         free(ek_S_str);
         DK_clear(dk_X);
         EK_clear(ek_S);
@@ -233,7 +233,7 @@ TEE_Result TA_CreateEntryPoint(void) {
     }
     free(dk_R_str);
 
-    if(1 == Cipher_init(pairing, &c)) {
+    if(!(c = Cipher_init(pairing))) {
         DK_clear(dk_X);
         DK_clear(dk_R);
         EK_clear(ek_S);
@@ -279,7 +279,7 @@ TEE_Result TA_CreateEntryPoint(void) {
         return TEE_ERROR_GENERIC;
     }
     Cipher_clear(c);
-    if(1 == Cipher_init(pairing, &c)) {
+    if(!(c = Cipher_init(pairing))) {
         free(c_str);
         DK_clear(dk_X);
         DK_clear(dk_R);
