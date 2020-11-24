@@ -7,6 +7,7 @@
 #include "padding.h"
 #include <stdlib.h>
 #include <tee_internal_api.h>
+#include <utee_defines.h>
 
 int ibme_setup(MKP *mkp)
 {
@@ -115,7 +116,7 @@ int ibme_enc(pairing_t pairing, MPK *mpk, EK *ek, const unsigned char *R, size_t
     Hash_bytes *h_k_R = NULL, *h_k_S = NULL;
     uint8_t *m_padded = NULL, *m_hashed = NULL, *m_hash;
     size_t m_padded_size, m_hashed_size, tmp_bs;
-    uint32_t m_hash_size = SHA256_HASH_SIZE;
+    uint32_t m_hash_size = TEE_SHA256_HASH_SIZE;
     TEE_Result res;
     TEE_OperationHandle op_handle = TEE_HANDLE_NULL;
     uint8_t bs;
@@ -197,7 +198,7 @@ int ibme_enc(pairing_t pairing, MPK *mpk, EK *ek, const unsigned char *R, size_t
         goto out;
     }
     res = TEE_DigestDoFinal(op_handle, m, m_size, m_hash, &m_hash_size);
-    if (res != TEE_SUCCESS || m_hash_size != SHA256_HASH_SIZE)
+    if (res != TEE_SUCCESS || m_hash_size != TEE_SHA256_HASH_SIZE)
     {
         ret = 1;
         goto out;
@@ -267,8 +268,8 @@ int ibme_dec(pairing_t pairing, DK *dk, const unsigned char *S, size_t S_size, C
     Hash_bytes *h_k_R = NULL, *h_k_S = NULL;
     uint8_t *m_padded = NULL, *m_hashed = NULL;
     size_t m_padded_size, m_hashed_size, tmp_bs, tmp_m_size;
-    unsigned char m_hash[SHA256_HASH_SIZE];
-    uint32_t m_hash_size = SHA256_HASH_SIZE;
+    unsigned char m_hash[TEE_SHA256_HASH_SIZE];
+    uint32_t m_hash_size = TEE_SHA256_HASH_SIZE;
     TEE_Result res;
     TEE_OperationHandle op_handle = TEE_HANDLE_NULL;
     uint8_t bs;
@@ -371,7 +372,7 @@ int ibme_dec(pairing_t pairing, DK *dk, const unsigned char *S, size_t S_size, C
         goto out;
     }
     res = TEE_DigestDoFinal(op_handle, m_hashed, tmp_m_size, m_hash, &m_hash_size);
-    if (res != TEE_SUCCESS || m_hash_size != SHA256_HASH_SIZE)
+    if (res != TEE_SUCCESS || m_hash_size != TEE_SHA256_HASH_SIZE)
     {
         ret = 1;
         goto out;

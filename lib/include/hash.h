@@ -37,6 +37,4 @@ static const unsigned char mask[] = {
 
 static const unsigned int mask_len = 48;
 
-static const int SHA256_HASH_SIZE = 32;
-
 #endif //IBME_HASH_H

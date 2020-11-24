@@ -1,5 +1,6 @@
 #include "hash.h"
 #include <tee_internal_api.h>
+#include <utee_defines.h>
 #include <string.h>
 #include <pbc/pbc.h>
 #include <stdlib.h>
@@ -73,8 +74,8 @@ int H(const unsigned char *X, size_t X_len, Hash_G1 *hash)
 {   
     TEE_Result res;
     TEE_OperationHandle op_handle;
-    unsigned char h[SHA256_HASH_SIZE];
-    uint32_t h_size = SHA256_HASH_SIZE;
+    unsigned char h[TEE_SHA256_HASH_SIZE];
+    uint32_t h_size = TEE_SHA256_HASH_SIZE;
 
     if ((X == NULL) || (X_len < 1) || (hash == NULL))
     {
