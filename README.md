@@ -10,9 +10,7 @@ This library was developed for prototyping **only**. It was not extensively test
 Do **not** use it as part of a production setup.
 
 ## Dependencies
-The IB-ME library depends on the [PBC](https://crypto.stanford.edu/pbc/) and [mbed TLS](https://tls.mbed.org/) libraries.
-
-While mbed TLS is already provided as part of the OP-TEE TA Development Kit, PBC needs to be installed.
+The IB-ME library depends on the [PBC](https://crypto.stanford.edu/pbc/) library.
 
 A port of the PBC library to OP-TEE can be found in the following repository:
 https://github.com/vascoguita/optee_pbc

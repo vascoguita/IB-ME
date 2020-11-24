@@ -1,5 +1,5 @@
 #include "hash.h"
-#include <mbedtls/sha256.h>
+#include <tee_internal_api.h>
 #include <string.h>
 #include <pbc/pbc.h>
 #include <stdlib.h>
@@ -70,20 +70,31 @@ int H_prime(const unsigned char *X, size_t X_len, Hash_G1 *hash)
 }
 
 int H(const unsigned char *X, size_t X_len, Hash_G1 *hash)
-{
-    unsigned char digest[sha256_digest_len];
+{   
+    TEE_Result res;
+    TEE_OperationHandle op_handle;
+    unsigned char h[SHA256_HASH_SIZE];
+    uint32_t h_size = SHA256_HASH_SIZE;
 
     if ((X == NULL) || (X_len < 1) || (hash == NULL))
     {
         return 1;
     }
 
-    if (1 == mbedtls_sha256_ret(X, X_len, digest, 0))
+    res = TEE_AllocateOperation(&op_handle, TEE_ALG_SHA256, TEE_MODE_DIGEST, 0);
+    if (res != TEE_SUCCESS)
     {
         return 1;
     }
+    res = TEE_DigestDoFinal(op_handle, X, X_len, h, &h_size);
+    if (res != TEE_SUCCESS)
+    {
+        TEE_FreeOperation(op_handle);
+        return 1;
+    }
+    TEE_FreeOperation(op_handle);
 
-    element_from_hash(hash->h, digest, sha256_digest_len);
+    element_from_hash(hash->h, h, h_size);
 
     return 0;
 }
