@@ -7,7 +7,6 @@ file(GLOB INC include/*)
 add_library(ibme STATIC ${SRC} ${INC})
 
 target_include_directories(ibme PUBLIC include)
-#target_link_libraries(ibme)
 
 install(TARGETS ibme DESTINATION lib)
 install(FILES ${INC} DESTINATION include/ibme)
