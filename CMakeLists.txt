@@ -12,3 +12,4 @@ install(TARGETS ibme DESTINATION lib)
 install(FILES ${INC} DESTINATION include/ibme)
 
 add_subdirectory(demo)
+add_subdirectory(benchmark)

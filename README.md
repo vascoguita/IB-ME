@@ -19,3 +19,17 @@ After building the project you can run the demonstration:
 
     cd demo
     ./demo
+
+## Run benchmark
+After building the project you can run the benchmark program:
+
+    cd benchmark
+    ./benchmark -o <operation> -r <number of repetitions>
+
+The benchmark program supports the following operations:
+
+* setup
+* sk_gen
+* rk_gen
+* enc
+* dec
