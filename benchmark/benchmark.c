@@ -125,6 +125,7 @@ int benchmark_init(void)
     {
         return 1;
     }
+    return 0;
 }
 
 void benchmark_clear(void)
