@@ -1,0 +1,14 @@
+#ifndef TA_IBME_BENCHMARK_H
+#define TA_IBME_BENCHMARK_H
+
+#define TA_IBME_BENCHMARK_UUID \
+    { 0x3bc7ee12, 0xa038, 0x4c0d, \
+        { 0x82, 0x54, 0x74, 0x08, 0x70, 0x98, 0x19, 0x72} }
+
+#define TA_IBME_BENCHMARK_CMD_SETUP     0
+#define TA_IBME_BENCHMARK_CMD_SK_GEN    1
+#define TA_IBME_BENCHMARK_CMD_RK_GEN    2
+#define TA_IBME_BENCHMARK_CMD_ENC       3
+#define TA_IBME_BENCHMARK_CMD_DEC       4
+
+#endif

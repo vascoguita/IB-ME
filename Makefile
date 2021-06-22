@@ -1,6 +1,7 @@
 ROOT							?= $(CURDIR)
 IBME_ROOT						?= $(ROOT)/lib
 DEMO_ROOT						?= $(ROOT)/demo
+BENCHMARK_ROOT					?= $(ROOT)/benchmark
 
 .PHONY: all
 all: build
@@ -17,6 +18,14 @@ install:
 	mv $(IBME_ROOT)/ibme.a $(TA_DEV_KIT_DIR)/lib/. && \
 	mkdir -p $(TA_DEV_KIT_DIR)/include/ibme && \
 	cp $(IBME_ROOT)/include/* $(TA_DEV_KIT_DIR)/include/ibme/.
+
+.PHONY: benchmark
+benchmark:
+	$(MAKE) -C $(BENCHMARK_ROOT) \
+		CROSS_COMPILE=$(CROSS_COMPILE) \
+		TEEC_EXPORT=$(TEEC_EXPORT) \
+		PLATFORM=$(PLATFORM) \
+		TA_DEV_KIT_DIR=$(TA_DEV_KIT_DIR)
 
 .PHONY: demo
 demo:
@@ -40,4 +49,9 @@ uninstall:
 .PHONY: demo_clean
 demo_clean:
 	$(MAKE) -C $(DEMO_ROOT) clean \
+		TA_DEV_KIT_DIR=$(TA_DEV_KIT_DIR)
+
+.PHONY: benchmark_clean
+benchmark_clean:
+	$(MAKE) -C $(BENCHMARK_ROOT) clean \
 		TA_DEV_KIT_DIR=$(TA_DEV_KIT_DIR)
